@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.snap.tiles.data.Action
 import com.snap.tiles.data.TileConfigRepo
 import com.snap.tiles.ui.screens.AddActionScreen
+import com.snap.tiles.ui.screens.ConnectToMacScreen
 import com.snap.tiles.ui.screens.EditTileScreen
 import com.snap.tiles.ui.screens.HomeScreen
 import com.snap.tiles.ui.theme.QuickTilesTheme
@@ -45,11 +46,15 @@ private fun QuickTilesNavHost() {
         composable("home") {
             HomeScreen(
                 onEditSlot = { slot ->
-                    // Reset returned actions when entering edit
                     returnedActions = null
                     navController.navigate("edit/$slot")
-                }
+                },
+                onConnectToMac = { navController.navigate("connectMac") }
             )
+        }
+
+        composable("connectMac") {
+            ConnectToMacScreen(onBack = { navController.popBackStack() })
         }
 
         composable(
