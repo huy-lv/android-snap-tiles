@@ -48,8 +48,11 @@ object ConnectToMacRepository {
                     val json = JSONObject(response.body?.string() ?: "{}")
                     val status = json.optString("status")
                     val message = json.optString("message")
-                    if (status == "ok") ConnectResult.Success(message)
-                    else ConnectResult.Failure(message)
+                    when (status) {
+                        "ok" -> ConnectResult.Success(message)
+                        "needs_pairing" -> ConnectResult.NeedsPairing(message)
+                        else -> ConnectResult.Failure(message)
+                    }
                 }
             } catch (e: java.net.ConnectException) {
                 ConnectResult.Failure("Cannot reach Mac daemon. Is it running? Check firewall.")
@@ -63,5 +66,6 @@ object ConnectToMacRepository {
 
 sealed class ConnectResult {
     data class Success(val message: String) : ConnectResult()
+    data class NeedsPairing(val instructions: String) : ConnectResult()
     data class Failure(val message: String) : ConnectResult()
 }

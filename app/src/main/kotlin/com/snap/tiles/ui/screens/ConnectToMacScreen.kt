@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Computer
+import androidx.compose.material.icons.filled.Cable
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -76,6 +77,13 @@ fun ConnectToMacScreen(
                 is ConnectUiState.NoDevicesFound -> NoDevicesContent(onRetry = { vm.startScan() })
 
                 is ConnectUiState.Connecting -> ConnectingContent(device = s.device)
+
+                is ConnectUiState.NeedsPairing -> NeedsPairingContent(
+                    device = s.device,
+                    instructions = s.instructions,
+                    onRetry = { vm.connectTo(s.device) },
+                    onBack = { vm.reset() }
+                )
 
                 is ConnectUiState.Success -> SuccessContent(
                     device = s.device,
@@ -218,6 +226,54 @@ private fun ConnectingContent(device: MacDevice) {
             fontSize = 13.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun NeedsPairingContent(
+    device: MacDevice,
+    instructions: String,
+    onRetry: () -> Unit,
+    onBack: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Card(
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                Icon(Icons.Default.Cable, null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(22.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        "One-time pairing required",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        instructions,
+                        fontSize = 13.sp,
+                        lineHeight = 20.sp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) {
+                Text("Back")
+            }
+            Button(onClick = onRetry, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) {
+                Text("Retry")
+            }
+        }
     }
 }
 

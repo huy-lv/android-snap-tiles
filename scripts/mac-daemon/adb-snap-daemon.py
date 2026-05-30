@@ -122,9 +122,38 @@ def run_adb_connect(phone_ip: str):
             log.info("Connected: %s | %s", target, output)
             return "ok", f"connected to {target}"
         log.error("adb connect failed: %s | %s", target, output)
-        return "error", f"adb connect failed: {output}"
+        # Detect unpaired device — TLS handshake rejected
+        if "failed to connect" in output.lower() or "connection refused" in output.lower():
+            pairing_port = _find_pairing_port_via_mdns(adb_bin, phone_ip)
+            hint = (
+                f"This Mac has not been paired with the device yet.\n\n"
+                f"On the phone: Developer Options → Wireless Debugging → Pair device with pairing code\n"
+            )
+            if pairing_port:
+                hint += f"Then on Mac run:\n  adb pair {phone_ip}:{pairing_port}\nand enter the 6-digit code shown on the phone."
+            else:
+                hint += f"Then on Mac run:\n  adb pair {phone_ip}:<pairing-port>\nusing the port shown on the phone screen."
+            return "needs_pairing", hint
+        return "error", output
     except subprocess.TimeoutExpired:
         return "error", f"adb connect timed out for {target}"
+
+
+def _find_pairing_port_via_mdns(adb_bin: str, phone_ip: str):
+    """Look for _adb-tls-pairing._tcp service to get the pairing port."""
+    try:
+        result = subprocess.run(
+            [adb_bin, "mdns", "services"],
+            capture_output=True, text=True, timeout=10
+        )
+        for line in result.stdout.splitlines():
+            if "_adb-tls-pairing._tcp" in line and phone_ip in line:
+                m = re.search(rf"{re.escape(phone_ip)}:(\d+)", line)
+                if m:
+                    return int(m.group(1))
+    except Exception as e:
+        log.warning("pairing port lookup error: %s", e)
+    return None
 
 
 # ── HTTP ─────────────────────────────────────────────────────────────────────

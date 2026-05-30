@@ -19,6 +19,7 @@ sealed class ConnectUiState {
     object NoDevicesFound : ConnectUiState()
     data class Connecting(val device: MacDevice) : ConnectUiState()
     data class Success(val device: MacDevice, val message: String) : ConnectUiState()
+    data class NeedsPairing(val device: MacDevice, val instructions: String) : ConnectUiState()
     data class Error(val message: String, val devices: List<MacDevice> = emptyList()) : ConnectUiState()
 }
 
@@ -71,6 +72,7 @@ class ConnectToMacViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             when (val result = ConnectToMacRepository.sendConnectRequest(device.host, device.port, phoneIp)) {
                 is ConnectResult.Success -> _state.value = ConnectUiState.Success(device, result.message)
+                is ConnectResult.NeedsPairing -> _state.value = ConnectUiState.NeedsPairing(device, result.instructions)
                 is ConnectResult.Failure -> _state.value = ConnectUiState.Error(
                     result.message,
                     discovered.values.toList()

@@ -28,8 +28,8 @@ Quick Settings tiles to toggle system settings on Android with a single tap — 
 
 ## Screenshots
 
-| Floating Button | Snap to Edge | Custom Tiles |
-|---|---|---|
+| Floating Button                              | Snap to Edge                                     | Custom Tiles                                         |
+| -------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------- |
 | ![Floating Button](media/floating-snap.jpeg) | ![Snap to Edge](media/floating-snap-visual.jpeg) | ![Custom Tiles](media/multiple-and-custom-tile.jpeg) |
 
 ## Demo
@@ -47,8 +47,7 @@ Grab the latest release from the [Releases page](https://github.com/kaidraw-21/a
 ### Build from source
 
 ```bash
-./gradlew assembleDebug
-adb install app/build/outputs/apk/debug/app-debug.apk
+./gradlew installDebug && adb shell am start -n com.snap.tiles/.ui.MainActivity
 ```
 
 ## ADB Setup
@@ -58,11 +57,11 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 Before proceeding, ensure you have Developer options and USB debugging enabled on your Android device.
 
 1.  **Enable Developer Options**:
-    *   Go to `Settings` > `About phone`.
-    *   Tap `Build number` 7 times until you see a message "You are now a developer!" or "Developer options enabled".
+    - Go to `Settings` > `About phone`.
+    - Tap `Build number` 7 times until you see a message "You are now a developer!" or "Developer options enabled".
 2.  **Enable USB Debugging**:
-    *   Go to `Settings` > `System` > `Developer options` (or `Settings` > `Developer options`).
-    *   Turn on `USB debugging`.
+    - Go to `Settings` > `System` > `Developer options` (or `Settings` > `Developer options`).
+    - Turn on `USB debugging`.
 
 Grant the required permission once via ADB:
 
